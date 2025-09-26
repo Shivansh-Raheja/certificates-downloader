@@ -22,9 +22,17 @@ function parseArgs() {
 const params = parseArgs();
 const { sheetId, sheetName, date, todate, school } = params;
 
+console.log('Received parameters:');
+console.log('sheetId:', sheetId);
+console.log('sheetName:', sheetName);
+console.log('date:', date);
+console.log('todate:', todate);
+console.log('school:', school);
+
 if (!sheetId || !sheetName || !date || !todate) {
   console.error('Missing required parameters. Usage:');
   console.error('node generate-certificates.js --sheet-id <ID> --sheet-name <NAME> --date <YYYY-MM-DD> --todate <YYYY-MM-DD> [--school <SCHOOL>]');
+  console.error('Current parameters received:', params);
   process.exit(1);
 }
 

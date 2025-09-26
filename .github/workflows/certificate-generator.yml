@@ -53,7 +53,15 @@ jobs:
         EMAIL: ${{ secrets.EMAIL }}
         PASSWORD: ${{ secrets.PASSWORD }}
       run: |
-        if [ -n "${{ github.event.inputs.school }}" ]; then
+        echo "Running certificate generation with parameters:"
+        echo "Sheet ID: ${{ github.event.inputs.sheet_id }}"
+        echo "Sheet Name: ${{ github.event.inputs.sheet_name }}"
+        echo "Date: ${{ github.event.inputs.date }}"
+        echo "To Date: ${{ github.event.inputs.todate }}"
+        echo "School: ${{ github.event.inputs.school }}"
+        
+        if [ -n "${{ github.event.inputs.school }}" ] && [ "${{ github.event.inputs.school }}" != "" ]; then
+          echo "Running with school filter..."
           node generate-certificates.js \
             --sheet-id="${{ github.event.inputs.sheet_id }}" \
             --sheet-name="${{ github.event.inputs.sheet_name }}" \
@@ -61,6 +69,7 @@ jobs:
             --todate="${{ github.event.inputs.todate }}" \
             --school="${{ github.event.inputs.school }}"
         else
+          echo "Running without school filter..."
           node generate-certificates.js \
             --sheet-id="${{ github.event.inputs.sheet_id }}" \
             --sheet-name="${{ github.event.inputs.sheet_name }}" \
