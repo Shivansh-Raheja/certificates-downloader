@@ -10,10 +10,30 @@ function parseArgs() {
   const args = process.argv.slice(2);
   const params = {};
   
-  for (let i = 0; i < args.length; i += 2) {
-    const key = args[i].replace('--', '');
-    const value = args[i + 1];
-    params[key] = value;
+  console.log('Raw arguments:', args);
+  
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    console.log(`Processing argument: ${arg}`);
+    
+    if (arg.startsWith('--')) {
+      // Handle both --key=value and --key value formats
+      if (arg.includes('=')) {
+        const [key, value] = arg.split('=', 2);
+        const cleanKey = key.replace('--', '');
+        params[cleanKey] = value;
+        console.log(`Parsed ${cleanKey} = ${value}`);
+      } else {
+        // Handle --key value format
+        const key = arg.replace('--', '');
+        const value = args[i + 1];
+        if (value && !value.startsWith('--')) {
+          params[key] = value;
+          console.log(`Parsed ${key} = ${value}`);
+          i++; // Skip the next argument as it's the value
+        }
+      }
+    }
   }
   
   return params;
