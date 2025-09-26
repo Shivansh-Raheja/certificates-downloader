@@ -40,7 +40,7 @@ function parseArgs() {
 }
 
 const params = parseArgs();
-const { sheetId, sheetName, date, todate, school } = params;
+const { 'sheet-id': sheetId, 'sheet-name': sheetName, date, todate, school } = params;
 
 console.log('Received parameters:');
 console.log('sheetId:', sheetId);
