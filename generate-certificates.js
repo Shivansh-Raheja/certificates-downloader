@@ -73,7 +73,7 @@ const drive = google.drive({ version: 'v3', auth: oauth2Client });
 const slides = google.slides({ version: 'v1', auth: oauth2Client });
 
 // Nodemailer configuration
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL,
