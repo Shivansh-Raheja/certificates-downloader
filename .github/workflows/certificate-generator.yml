@@ -1,0 +1,70 @@
+name: Certificate Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      sheet_id:
+        description: 'Google Sheet ID'
+        required: true
+        type: string
+      sheet_name:
+        description: 'Sheet Name'
+        required: true
+        type: string
+        default: 'Sheet1'
+      date:
+        description: 'Start Date (YYYY-MM-DD)'
+        required: true
+        type: string
+      todate:
+        description: 'End Date (YYYY-MM-DD)'
+        required: true
+        type: string
+      school:
+        description: 'School Name (optional)'
+        required: false
+        type: string
+
+jobs:
+  generate-certificates:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Generate certificates
+      env:
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+        REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+        TEMPLATE_ID: ${{ secrets.TEMPLATE_ID }}
+        FOLDER_ID: ${{ secrets.FOLDER_ID }}
+        EMAIL: ${{ secrets.EMAIL }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+      run: |
+        node generate-certificates.js \
+          --sheet-id="${{ github.event.inputs.sheet_id }}" \
+          --sheet-name="${{ github.event.inputs.sheet_name }}" \
+          --date="${{ github.event.inputs.date }}" \
+          --todate="${{ github.event.inputs.todate }}" \
+          --school="${{ github.event.inputs.school }}"
+          
+    - name: Upload certificates
+      uses: actions/upload-artifact@v4
+      with:
+        name: certificates-${{ github.run_number }}
+        path: |
+          certificates.pdf
+          certificates.zip
+        retention-days: 30
