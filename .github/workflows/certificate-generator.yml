@@ -53,12 +53,20 @@ jobs:
         EMAIL: ${{ secrets.EMAIL }}
         PASSWORD: ${{ secrets.PASSWORD }}
       run: |
-        node generate-certificates.js \
-          --sheet-id="${{ github.event.inputs.sheet_id }}" \
-          --sheet-name="${{ github.event.inputs.sheet_name }}" \
-          --date="${{ github.event.inputs.date }}" \
-          --todate="${{ github.event.inputs.todate }}" \
-          --school="${{ github.event.inputs.school }}"
+        if [ -n "${{ github.event.inputs.school }}" ]; then
+          node generate-certificates.js \
+            --sheet-id="${{ github.event.inputs.sheet_id }}" \
+            --sheet-name="${{ github.event.inputs.sheet_name }}" \
+            --date="${{ github.event.inputs.date }}" \
+            --todate="${{ github.event.inputs.todate }}" \
+            --school="${{ github.event.inputs.school }}"
+        else
+          node generate-certificates.js \
+            --sheet-id="${{ github.event.inputs.sheet_id }}" \
+            --sheet-name="${{ github.event.inputs.sheet_name }}" \
+            --date="${{ github.event.inputs.date }}" \
+            --todate="${{ github.event.inputs.todate }}"
+        fi
           
     - name: Upload certificates
       uses: actions/upload-artifact@v4

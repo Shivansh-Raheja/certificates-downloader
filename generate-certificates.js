@@ -28,6 +28,9 @@ if (!sheetId || !sheetName || !date || !todate) {
   process.exit(1);
 }
 
+// Handle optional school parameter
+const schoolFilter = school && school !== 'undefined' ? school : null;
+
 // Google Sheets and Drive credentials
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
@@ -417,15 +420,15 @@ async function main() {
     console.log(`Sheet ID: ${sheetId}`);
     console.log(`Sheet Name: ${sheetName}`);
     console.log(`Date: ${date} to ${todate}`);
-    console.log(`School: ${school || 'All schools'}`);
+    console.log(`School: ${schoolFilter || 'All schools'}`);
 
     const sheetData = await getSheetData(sheetId, sheetName);
-    const filteredData = school ? sheetData.filter(row => row[2]?.toString().toUpperCase() === school.toUpperCase()) : sheetData;
+    const filteredData = schoolFilter ? sheetData.filter(row => row[2]?.toString().toUpperCase() === schoolFilter.toUpperCase()) : sheetData;
     const totalCertificates = filteredData.length - 1;
 
     console.log(`Found ${totalCertificates} certificates to generate`);
 
-    if (!school) {
+    if (!schoolFilter) {
       // Generate all certificates and send via email
       await sendCertificates(filteredData, date, todate);
       await new Promise(resolve => setTimeout(resolve, 2000));
