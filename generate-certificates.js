@@ -116,9 +116,9 @@ async function sendCertificates(sheetData, date, todate) {
   const templateId = process.env.TEMPLATE_ID;
   const folderId = process.env.FOLDER_ID;
 
-  console.log(`Starting to send ${sheetData.length - 1} certificates via email...`);
+  console.log(`Starting to send ${sheetData.length} certificates via email...`);
 
-  for (let i = 1; i < sheetData.length; i++) {
+  for (let i = 0; i < sheetData.length; i++) {
     const row = sheetData[i];
     const name = row[0]?.toString() || '';
     const email = row[1]?.toString() || '';
@@ -128,7 +128,7 @@ async function sendCertificates(sheetData, date, todate) {
     const formattedDate = formatDateToReadable(new Date(date));
     const formattedtoDate = formatDateToReadable(new Date(todate));
 
-    console.log(`Processing certificate ${i}/${sheetData.length - 1}: ${name}`);
+    console.log(`Processing certificate ${i + 1}/${sheetData.length}: ${name}`);
 
     const copyFile = await drive.files.copy({
       fileId: templateId,
@@ -207,13 +207,13 @@ async function generateCertificatesAsSinglePDF(sheetData, date, todate) {
   const templateId = process.env.TEMPLATE_ID;
   const folderId = process.env.FOLDER_ID;
 
-  console.log(`Starting to generate single PDF with ${sheetData.length - 1} certificates...`);
+  console.log(`Starting to generate single PDF with ${sheetData.length} certificates...`);
 
   // Dynamically import PDFMerger
   const { default: PDFMerger } = await import('pdf-merger-js');
   const merger = new PDFMerger();
 
-  for (let i = 1; i < sheetData.length; i++) {
+  for (let i = 0; i < sheetData.length; i++) {
     const row = sheetData[i];
     const name = row[0]?.toString() || '';
     const schoolName = row[2]?.toString() || '';
@@ -222,7 +222,7 @@ async function generateCertificatesAsSinglePDF(sheetData, date, todate) {
     const formattedDate = formatDateToReadable(new Date(date));
     const formattedtoDate = formatDateToReadable(new Date(todate));
 
-    console.log(`Processing certificate ${i}/${sheetData.length - 1}: ${name}`);
+    console.log(`Processing certificate ${i + 1}/${sheetData.length}: ${name}`);
 
     const copyFile = await drive.files.copy({
       fileId: templateId,
@@ -302,7 +302,7 @@ async function generateCertificates(sheetData, date, todate) {
   const folderId = process.env.FOLDER_ID;
   let generatedCount = 0;
 
-  console.log(`Starting to generate ZIP with ${sheetData.length - 1} certificates...`);
+  console.log(`Starting to generate ZIP with ${sheetData.length} certificates...`);
 
   const zipFilePath = path.join(__dirname, 'certificates.zip');
   const output = fs.createWriteStream(zipFilePath);
@@ -320,7 +320,7 @@ async function generateCertificates(sheetData, date, todate) {
 
   const totalCertificates = sheetData.length;
   
-  for (let i = 1; i < totalCertificates; i++) {
+  for (let i = 0; i < totalCertificates; i++) {
     const row = sheetData[i];
     const name = row[0]?.toString() || '';
     const schoolName = row[2]?.toString() || '';
@@ -461,18 +461,21 @@ async function main() {
       return schoolInSheet === schoolFilterUpper;
     }) : sheetData;
     
-    const totalCertificates = filteredData.length - 1;
+    // Count non-empty rows (skip empty rows)
+    const nonEmptyRows = filteredData.filter(row => row && row.length > 0 && row[0] && row[0].trim() !== '');
+    const totalCertificates = nonEmptyRows.length;
     console.log('Filtered data:', filteredData);
+    console.log('Non-empty rows:', nonEmptyRows);
     console.log(`Found ${totalCertificates} certificates to generate`);
 
     if (!schoolFilter) {
       // Generate all certificates and send via email
-      await sendCertificates(filteredData, date, todate);
+      await sendCertificates(nonEmptyRows, date, todate);
       await new Promise(resolve => setTimeout(resolve, 2000));
-      await generateCertificatesAsSinglePDF(filteredData, date, todate);
+      await generateCertificatesAsSinglePDF(nonEmptyRows, date, todate);
     } else {
       // Specific school selected, generate certificates as a ZIP file
-      await generateCertificates(filteredData, date, todate);
+      await generateCertificates(nonEmptyRows, date, todate);
     }
 
     console.log('Certificate generation completed successfully!');
