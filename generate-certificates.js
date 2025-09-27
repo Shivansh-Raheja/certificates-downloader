@@ -451,9 +451,18 @@ async function main() {
     console.log(`School: ${schoolFilter || 'All schools'}`);
 
     const sheetData = await getSheetData(sheetId, sheetName);
-    const filteredData = schoolFilter ? sheetData.filter(row => row[2]?.toString().toUpperCase() === schoolFilter.toUpperCase()) : sheetData;
+    console.log('Raw sheet data:', sheetData);
+    console.log('School filter:', schoolFilter);
+    
+    const filteredData = schoolFilter ? sheetData.filter(row => {
+      const schoolInSheet = row[2]?.toString().toUpperCase();
+      const schoolFilterUpper = schoolFilter.toUpperCase();
+      console.log(`Comparing: "${schoolInSheet}" === "${schoolFilterUpper}"`);
+      return schoolInSheet === schoolFilterUpper;
+    }) : sheetData;
+    
     const totalCertificates = filteredData.length - 1;
-
+    console.log('Filtered data:', filteredData);
     console.log(`Found ${totalCertificates} certificates to generate`);
 
     if (!schoolFilter) {
