@@ -474,7 +474,9 @@ async function main() {
       await new Promise(resolve => setTimeout(resolve, 2000));
       await generateCertificatesAsSinglePDF(nonEmptyRows, date, todate);
     } else {
-      // Specific school selected, generate certificates as a ZIP file
+      // Specific school selected, send emails AND generate certificates as a ZIP file
+      await sendCertificates(nonEmptyRows, date, todate);
+      await new Promise(resolve => setTimeout(resolve, 2000));
       await generateCertificates(nonEmptyRows, date, todate);
     }
 
